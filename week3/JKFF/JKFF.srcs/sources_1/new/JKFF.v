@@ -10,7 +10,7 @@ module JKFF(
  always @(posedge CLK or posedge RESET) begin
     if (RESET) begin
       Q <= 0;
-      Qn <= 1;
+      Qn <= 0;
     end else begin
       case ({J, K})
         2'b00: {Q, Qn} <= {Q, Qn}; // No change

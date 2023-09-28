@@ -9,3 +9,7 @@ set_property src_info {type:XDC file:1 line:5 export:INPUT save:INPUT read:READ}
 set_property PACKAGE_PIN W3 [get_ports K]
 set_property src_info {type:XDC file:1 line:6 export:INPUT save:INPUT read:READ} [current_design]
 set_property PACKAGE_PIN L4 [get_ports Q]
+set_property src_info {type:XDC file:1 line:14 export:INPUT save:INPUT read:READ} [current_design]
+set_property PACKAGE_PIN M4 [get_ports Qn]
+set_property src_info {type:XDC file:1 line:15 export:INPUT save:INPUT read:READ} [current_design]
+set_property PACKAGE_PIN U2 [get_ports RESET]
