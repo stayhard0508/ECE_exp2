@@ -1,3 +1,5 @@
+
+
 module seg_array(clk, rst, btn, seg_data, seg_sel);
 
 input clk, rst;
@@ -8,9 +10,6 @@ wire [7:0] state_bcd;
 output reg [7:0] seg_data;
 output reg [7:0] seg_sel;
 reg[3:0] bcd;
-
-parameter cnt_limit = 14'd10000;
-reg [13:0] cnt;
 
 oneshot_universal #(.WIDTH(1)) O1(clk, rst, btn, btn_trig);
 bin2bcd b2(clk,rst, state_bin[3:0], state_bcd[7:0]);
@@ -23,14 +22,10 @@ end
 //count 역할
 
 always  @(negedge rst or posedge clk) begin
-    if(!rst) begin 
-        seg_sel <= 8'b11111110;
-        cnt = 0;
-    end
-    else if(cnt>= cnt_limit/2) begin 
+    if(!rst) seg_sel <= 8'b11111110;
+    else begin 
         seg_sel <= {seg_sel[6:0], seg_sel[7]};
     end
-    else cnt = cnt + 1;
 end
 // segment array 매클럭마다 변경
 

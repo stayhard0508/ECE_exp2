@@ -19,4 +19,5 @@ set_property PACKAGE_PIN P6 [get_ports {btn[4]}]
 set_property PACKAGE_PIN N1 [get_ports {btn[3]}]
 set_property PACKAGE_PIN N4 [get_ports {btn[2]}]
 set_property PACKAGE_PIN N8 [get_ports {btn[1]}]
-set_property PACKAGE_PIN K1 [get_ports {btn[0]}]
+set_property PACKAGE_PIN K4 [get_ports {btn[0]}]
+

@@ -1,4 +1,4 @@
-`timescale 1us / 1ns
+`timescale 10ns / 10ps
 
 
 module testbench();
@@ -11,21 +11,20 @@ wire [7:0] seg_sel;
 seg_array sa(clk, rst, btn, seg_data, seg_sel);
 
 initial  begin
-    clk <= 0;
-    rst <= 1;
-    btn <= 0;
-    #1e+6; rst <= 0;
-    #1e+6; rst <= 1;
-    #1e+6; btn <= 1;
-    #1e+6; btn <= 0;
-    #1e+6; btn <= 1;
-    
-    
+    clk = 0;
+    rst = 0;
+    btn = 0;
+    #4 rst = 1;  
     
 end
 
 always begin
-    #0.5 clk <= ~clk;
+    #1 clk <= ~clk;
 end
 
+always begin
+    #24 //delay
+    #1 btn <= ~btn;
+    #1 btn <= ~btn;
+end
 endmodule
