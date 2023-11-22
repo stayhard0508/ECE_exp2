@@ -28,7 +28,7 @@ output [7:0] seg_data;
 output [7:0] seg_sel;
 
 text_LCD_basic tb(rst, clk, dac_d_temp,LCD_E, LCD_RS, LCD_RW, LCD_DATA, LED_out);
-seg7_controller s7(clk, rst, bin, seg_data, seg_sel);
+seg7_controller s7(clk, rst, dac_d_temp, seg_data, seg_sel);
 
 oneshot_universal #(.WIDTH(6)) O1(clk, rst, {btn[5:0]}, {btn_t[5:0]});
 
@@ -91,7 +91,6 @@ always @(posedge clk or negedge rst) begin
         else if(btn_t == 6'b000010) dac_d_temp <= dac_d_temp - 8'b0000_1000; // -8
         else if(btn_t == 6'b000001) dac_d_temp <= dac_d_temp + 8'b0000_1000; // +8
         led_out <= dac_d_temp;
-        bin <= dac_d_temp;
     end
 end
 

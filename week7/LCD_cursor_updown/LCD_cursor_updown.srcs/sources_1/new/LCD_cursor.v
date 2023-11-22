@@ -4,13 +4,14 @@ module LCD_cursor(rst, clk, LCD_E, LCD_RS, LCD_RW, LCD_DATA, LED_out, number_btn
 input rst, clk;
 input [9:0] number_btn;
 input [1:0] control_btn;
-input control_dip;
+input control_dip; // line1,2 change
 
 wire [9:0] number_btn_t;
 wire [1:0] control_btn_t;
-wire control_dip_t;
+wire control_dip_1t ,control_dip_2t;
 
-oneshot_universal #(.WIDTH(13)) O1(clk, rst, {number_btn[9:0],control_btn[1:0], control_dip}, {number_btn_t[9:0],control_btn_t[1:0],control_sw_t});
+
+oneshot_universal #(.WIDTH(12)) O1(clk, rst, {number_btn[9:0],control_btn[1:0], control_dip, ~control_dip}, {number_btn_t[9:0],control_btn_t[1:0],control_dip_1t ,control_dip_2t});
 //oneshot_universal #(.WIDTH(12)) 01(clk, rst, {number_btn[9:0], control_btn[1:0]}, {number_btn_t[9:0], control_btn_t[1:0]});
 //module name cannot start number, ex 01. O1(O is spelling) is correct.
 
@@ -23,17 +24,19 @@ reg LCD_RS, LCD_RW;
 
 reg [7:0] cnt;
 
-reg [2:0] state;
-parameter DELAY = 3'b000;
+reg [3:0] state;
+parameter DELAY = 4'b0000;
 parameter 
-        FUNCTION_SET = 3'b001,
-        DISP_ONOFF = 3'b010,
-        ENTRY_MODE = 3'b011,
-        SET_ADDRESS = 3'b100,
-        DELAY_T = 3'b101,
-        WRITE = 3'b110,
-        CURSOR = 3'b111;
-
+        FUNCTION_SET = 4'b0001,
+        DISP_ONOFF = 4'b0010,
+        ENTRY_MODE = 4'b0011,
+        SET_ADDRESS = 4'b0100,
+        DELAY_T = 4'b0101,
+        WRITE = 4'b0110,
+        CURSOR = 4'b0111,
+        SET_LINE_1 = 4'b1110,
+        SET_LINE_2 = 4'b1111;
+        
 always @(posedge clk or negedge  rst)
 begin
     if(!rst) begin
@@ -63,9 +66,8 @@ begin
                 LED_out <= 8'b0000_1000;
             end
             DELAY_T : begin
-                state <= |number_btn_t ? WRITE : (|control_btn_t ? CURSOR : (|control_dip_t ? CURSOR : DELAY_T));
+                state <= |number_btn_t ? WRITE : (|control_btn_t ? CURSOR : (control_dip_1t ? SET_LINE_2 : (control_dip_2t ? SET_LINE_1 : DELAY_T)));
                 LED_out <= 8'b0000_0100; //add choose about dipsw
-                
             end
             WRITE : begin
                 if(cnt == 30) state <= DELAY_T;
@@ -74,6 +76,14 @@ begin
             CURSOR : begin
                 if(cnt == 30) state <= DELAY_T;
                 LED_out <= 8'b0000_0001;
+            end
+            SET_LINE_1 : begin
+                if(cnt == 30) state <= DELAY_T;
+                LED_out <= 8'b0000_0001;
+            end
+            SET_LINE_2 : begin
+                if(cnt == 30) state <= DELAY_T;
+                LED_out <= 8'b0000_0001;    
             end
         endcase
     end
@@ -108,7 +118,13 @@ begin
                 else cnt <= cnt + 1;
             CURSOR :
                 if(cnt >= 30) cnt <=0;
-                else cnt <= cnt + 1;                    
+                else cnt <= cnt + 1;
+            SET_LINE_1 :
+                if(cnt >= 30) cnt <=0;
+                else cnt <= cnt + 1;     
+            SET_LINE_2 :
+                if(cnt >= 30) cnt <=0;
+                else cnt <= cnt + 1;                         
         endcase
     end
 end    
@@ -152,17 +168,18 @@ begin
                     case(control_btn)
                         2'b10 : {LCD_RS, LCD_RW, LCD_DATA} <= 10'b0_0_0001_0000; // left
                         2'b01 : {LCD_RS, LCD_RW, LCD_DATA} <= 10'b0_0_0001_0100; //right
-                    endcase
-                    case(control_dip)
-                        1 : {LCD_RS, LCD_RW, LCD_DATA} <= 10'b0_0_1000_0000; //line1
-                        0 : {LCD_RS, LCD_RW, LCD_DATA} <= 10'b0_0_1100_0000; //line2
-                    endcase                    
+                    endcase                     
                 end
-                else {LCD_RS, LCD_RW, LCD_DATA} <= 10'b0_0_0000_1111;
+                else {LCD_RS, LCD_RW, LCD_DATA} <= 10'b0_0_0000_1111;               
             end
+            SET_LINE_1 :
+                {LCD_RS, LCD_RW, LCD_DATA} <= 10'b0_0_1000_0000; 
+            SET_LINE_2 :
+                {LCD_RS, LCD_RW, LCD_DATA} <= 10'b0_0_1100_0000;
         endcase 
     end
 end
+
 
 assign LCD_E = clk;
 

@@ -7,7 +7,7 @@ input [1:0] control_btn;
 
 wire [9:0] number_btn_t;
 wire [1:0] control_btn_t;
-
+reg location;
 oneshot_universal_map #(.WIDTH(12)) O1(clk, rst, {number_btn[9:0],control_btn[1:0]}, {number_btn_t[9:0],control_btn_t[1:0]});
 //oneshot_universal #(.WIDTH(12)) 01(clk, rst, {number_btn[9:0], control_btn[1:0]}, {number_btn_t[9:0], control_btn_t[1:0]});
 //module name cannot start number, ex 01. O1(O is spelling) is correct.
@@ -123,8 +123,10 @@ begin
                 {LCD_RS, LCD_RW, LCD_DATA} <= 10'b0_0_0000_1111;
             ENTRY_MODE :
                 {LCD_RS, LCD_RW, LCD_DATA} <= 10'b0_0_0000_0110;
-            SET_ADDRESS :
+            SET_ADDRESS : begin
                 {LCD_RS, LCD_RW, LCD_DATA} <= 10'b0_0_0000_0010; // cursor at home
+                location = 0; end
+                               
             DELAY_T :
                 {LCD_RS, LCD_RW, LCD_DATA} <= 10'b0_0_0000_1111;
             WRITE : begin
@@ -140,21 +142,22 @@ begin
                         10'b0000_0001_00 : {LCD_RS, LCD_RW, LCD_DATA} <= 10'b1_0_0011_1000; //8
                         10'b0000_0000_10 : {LCD_RS, LCD_RW, LCD_DATA} <= 10'b1_0_0011_1001; //9
                         10'b0000_0000_01 : {LCD_RS, LCD_RW, LCD_DATA} <= 10'b1_0_0011_0000; //0
-                    endcase   
+                    endcase  
+                    location <=  location+1;   
                 end
                 else {LCD_RS, LCD_RW, LCD_DATA} <= 10'b0_0_0000_1111;
             end
             CURSOR : begin
                 if(cnt == 20) begin
                     case(control_btn)
-                        2'b10 : {LCD_RS, LCD_RW, LCD_DATA} <= 10'b0_0_0001_0000; // left
-                        2'b01 : {LCD_RS, LCD_RW, LCD_DATA} <= 10'b0_0_0001_0100; //right                      
+                        2'b10 : begin {LCD_RS, LCD_RW, LCD_DATA} <= 10'b0_0_0001_0000; // left
+                                   location <=  location-1; end
+                        2'b01 : begin {LCD_RS, LCD_RW, LCD_DATA} <= 10'b0_0_0001_0100; //right      
+                                   location <=  location+1; end                
                     endcase
-                    if(LCD_DATA == 8'b0001_0110 ) // at 16
-                            {LCD_RS, LCD_RW, LCD_DATA} = 10'b0_0_1000_0000; // to 0
-   
-                        else if(LCD_DATA == 8'b0101_0110) // at 56
-                            {LCD_RS, LCD_RW, LCD_DATA} = 10'b0_0_1100_0000; // to 40
+                    if(location >= 10 ) // at 16
+                            {LCD_RS, LCD_RW, LCD_DATA} <= 10'b0_0_1000_0000; // to 0
+ 
                 end
                 else {LCD_RS, LCD_RW, LCD_DATA} <= 10'b0_0_0000_1111;
             end

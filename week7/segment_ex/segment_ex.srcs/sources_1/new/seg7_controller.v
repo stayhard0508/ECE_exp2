@@ -10,10 +10,9 @@ reg [3:0] display_bcd;
 output reg [7:0] seg_data;
 output reg [7:0] seg_sel;
 
-//bin2bcd b2(clk, rst, .bin(dac_d_temp), .bcd_out(bcd));
 bin2bcd b2(clk, rst, bin, bcd);
 
-always  @(posedge clk or negedge rst) begin
+always  @(posedge rst or posedge clk) begin
     if(!rst) seg_sel <= 8'b11111110;
     else begin 
         seg_sel <= {seg_sel[6:0], seg_sel[7]};
